@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <link rel="apple-touch-icon" sizes="57x57" href="images/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="images/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="images/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="images/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="images/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="images/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="images/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="images/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="images/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192"  href="images/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="images/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="images/ms-icon-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+
+    <style type="text/css">
+      .ace_editor {
+        border: solid lightgray 1px;
+        height: 480px;
+      }
+      @media only screen and (max-width: 768px) {
+        .box{ margin-bottom:15px; }
+      }
+    </style>
+    <script src="https://use.fontawesome.com/ab7ee5aca9.js"></script>
+
+    <title>Swift Power Assert Playground</title>
+  </head>
+  <body>
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col">
+            <h2>Swift Power Assert</h2>
+            <p>Power Assert in Swift. Provides descriptive assertion messages through standard assert interface. <a href="https://github.com/kishikawakatsumi/SwiftPowerAssert">github.com/kishikawakatsumi/SwiftPowerAssert</a></p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="box">
+              <div class="row">
+                <div class="col">
+                  <pre id="editor">import Foundation
+import XCTest
+
+let a = 4
+let b = 7
+let c = 12
+
+XCTAssert(max(a, b) == c)
+XCTAssert(a + b > c)
+
+
+struct Person {
+  let name: String
+  let age: Int
+
+  var isTeenager: Bool {
+    return age <= 12 && age >= 20
+  }
+}
+
+let john = Person(name: "John", age: 42)
+let mike = Person(name: "Mike", age: 13)
+
+XCTAssert(john.isTeenager)
+XCTAssert(mike.isTeenager && john.age < mike.age)
+</pre>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-3">
+                  <button id="run-button" type="button" class="btn btn-primary btn-block">Run <i class="fa fa-play" aria-hidden="true"></i></button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="box">
+              <div class="row">
+                <div class="col">
+                  <pre id="results-editor"></pre>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-3">
+                  <button id="clear-button" type="button" class="btn btn-outline-secondary btn-block">Clear</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+      <script src="ace/ace.js"></script>
+      <script src="ace/ext-language_tools.js"></script>
+      <script type="text/javascript">
+        ace.require("ace/ext/language_tools");
+        var editor = ace.edit("editor");
+        editor.setTheme("ace/theme/xcode");
+        editor.session.setMode("ace/mode/swift");
+        editor.$blockScrolling = Infinity
+        editor.setOptions({
+          useSoftTabs: true,
+          autoScrollEditorIntoView: true,
+          fontFamily: "menlo",
+          fontSize: "11pt",
+          enableBasicAutocompletion: true,
+          enableSnippets: true,
+          enableLiveAutocompletion: true,
+        });
+        editor.renderer.setOptions({
+          showFoldWidgets: false,
+          showPrintMargin: false,
+        });
+
+        var resultsEditor = ace.edit("results-editor");
+        resultsEditor.setTheme("ace/theme/terminal");
+        resultsEditor.session.setMode("ace/mode/text");
+        resultsEditor.$blockScrolling = Infinity
+        resultsEditor.setOptions({
+          readOnly: true,
+          highlightActiveLine: false,
+          highlightSelectedWord: false,
+          autoScrollEditorIntoView: true,
+        });
+        resultsEditor.renderer.setOptions({
+          showGutter: false,
+          showPrintMargin: false,
+          fontFamily: "menlo",
+          fontSize: "11pt",
+        });
+        resultsEditor.renderer.hideCursor();
+
+        $("#run-button").click(function (e) {
+          console.log("run")
+          e.preventDefault();
+          run($(this), editor)
+        });
+        $("#clear-button").click(function (e) {
+          e.preventDefault();
+          clear($(this))
+        });
+
+        function run(sender, editor) {
+          sender.prop("disabled", true);
+          var buttonTitle = sender.html()
+          sender.html('<i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i> Processing...');
+          resultsEditor.setValue("");
+          var counter = 0
+          var intid = setInterval(function() {
+            if (counter == 0) {
+              resultsEditor.setValue('Creating a sandbox...');
+              counter += 1;
+            } else if (counter == 1) {
+              resultsEditor.setValue(resultsEditor.getSession().getValue() + '\nSpinning up a container...');
+              counter += 1;
+            } else if (counter == 2) {
+              resultsEditor.setValue(resultsEditor.getSession().getValue() + '\nBuilding.');
+              counter += 1;
+            } else {
+              resultsEditor.setValue(resultsEditor.getSession().getValue() + '.');
+            }
+            resultsEditor.clearSelection()
+          }, 1500);
+          var code = editor.getSession().getValue();
+          var json = {
+            code: code
+          };
+          $.post('/run', json, function(data, error, xhr) {
+            resultsEditor.setValue(data.errors + data.output)
+            resultsEditor.clearSelection()
+            sender.prop("disabled", false);
+            sender.html(buttonTitle);
+            editor.focus();
+            clearInterval(intid)
+          });
+        }
+
+        function clear(sender) {
+          resultsEditor.setValue("");
+        }
+      </script>
+  </body>
+</html>
