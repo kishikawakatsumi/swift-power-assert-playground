@@ -33,7 +33,7 @@ app.post('/run', bruteforce.prevent, function(req, res) {
   const folder = 'temp/' + random(10);
   const filename = 'main.swift';
   const code = req.body.code;
-  const timeout_value = 60; // In Seconds
+  const timeout_value = 30; // In Seconds
 
   const sandbox = new Sandbox(timeout_value, path, folder, filename, code);
   sandbox.run(function(data, error) {
