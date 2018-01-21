@@ -49,7 +49,7 @@
       <div class="row">
         <div class="col" style="margin-bottom: 15px;">
           <h1>Swift Power Assert</h1>
-          <p>Power Assert in Swift. Provides descriptive assertion messages through standard assert interface.<a href="https://github.com/kishikawakatsumi/SwiftPowerAssert">github.com/kishikawakatsumi/SwiftPowerAssert</a></p>
+          <p>Power Assert in Swift. Provides descriptive assertion messages through standard assert interface. <a href="https://github.com/kishikawakatsumi/SwiftPowerAssert">github.com/kishikawakatsumi/SwiftPowerAssert</a></p>
         </div>
       </div>
     </div>
@@ -84,13 +84,33 @@ XCTAssert(mike.isTeenager && john.age < mike.age)
 </pre>
         </div>
         <div class="col-md-6">
-          <pre id="results-editor"></pre>
+          <pre id="results-editor">XCTAssert(max(a, b) == c)
+          |   |  |  |  |
+          7   4  7  |  12
+                    false
+XCTAssert(a + b > c)
+          | | | | |
+          4 | 7 | 12
+            11  false
+XCTAssert(john.isTeenager)
+          |    |
+          |    false
+          Person(name: "John", age: 42)
+XCTAssert(mike.isTeenager && john.age < mike.age)
+          |    |          |  |    |   | |    |
+          |    false      |  |    42  | |    13
+          |               |  |        | Person(name: "Mike", age: 13)
+          |               |  |        false
+          |               |  Person(name: "John", age: 42)
+          |               false
+          Person(name: "Mike", age: 13)
+</pre>
         </div>
       </div>
     </div>
     <div class="container">
       <div class="row">
-        <div class="col-md-3 mx-auto" style="margin-top: 15px;">
+        <div class="col-md-3 mx-auto" style="margin-top: 15px; margin-bottom: 30px;">
           <button id="run-button" type="button" class="btn btn-primary btn-block btn-lg">Run <i class="fa fa-play" aria-hidden="true"></i></button>
         </div>
       </div>
@@ -103,7 +123,7 @@ XCTAssert(mike.isTeenager && john.age < mike.age)
     <script src="ace/ext-language_tools.js"></script>
     <script type="text/javascript">
       ace.require("ace/ext/language_tools");
-      var editor = ace.edit("editor");
+      const editor = ace.edit("editor");
       editor.setTheme("ace/theme/xcode");
       editor.session.setMode("ace/mode/swift");
       editor.$blockScrolling = Infinity
@@ -120,8 +140,11 @@ XCTAssert(mike.isTeenager && john.age < mike.age)
         showFoldWidgets: false,
         showPrintMargin: false,
       });
+      const row = editor.session.getLength() - 1
+      const column = editor.session.getLine(row).length // or simply Infinity
+      editor.gotoLine(row + 1, column)
 
-      var resultsEditor = ace.edit("results-editor");
+      const resultsEditor = ace.edit("results-editor");
       resultsEditor.setTheme("ace/theme/terminal");
       resultsEditor.session.setMode("ace/mode/text");
       resultsEditor.$blockScrolling = Infinity
@@ -142,20 +165,45 @@ XCTAssert(mike.isTeenager && john.age < mike.age)
       $("#run-button").click(function (e) {
         console.log("run")
         e.preventDefault();
-        run($(this), editor)
+        run($(this), editor);
       });
       $("#clear-button").click(function (e) {
         e.preventDefault();
-        clear($(this))
+        clear($(this));
       });
 
       function run(sender, editor) {
-        sender.prop("disabled", true);
-        var buttonTitle = sender.html()
-        sender.html('<i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i> Processing...');
+        const buttonTitle = deactivate(sender);
+        const intid = showProgress(resultsEditor);
+        const code = editor.getSession().getValue();
+        const json = {
+          code: code
+        };
+        $.post('/run', json, function(data, error, xhr) {
+          resultsEditor.setValue(data.errors + data.output);
+          resultsEditor.clearSelection();
+          clearInterval(intid);
+          editor.focus();
+          activate(sender, buttonTitle);
+        });
+      }
+
+      function activate(button, buttonTitle) {
+        button.prop("disabled", false);
+        button.html(buttonTitle);
+      }
+
+      function deactivate(button) {
+        button.prop("disabled", true);
+        var buttonTitle = button.html();
+        button.html('<i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i> Processing...');
         resultsEditor.setValue("");
-        var counter = 0
-        var intid = setInterval(function() {
+        return buttonTitle
+      }
+
+      function showProgress(editor) {
+        let counter = 0
+        return setInterval(function() {
           if (counter == 0) {
             resultsEditor.setValue('Creating a sandbox...');
             counter += 1;
@@ -168,24 +216,8 @@ XCTAssert(mike.isTeenager && john.age < mike.age)
           } else {
             resultsEditor.setValue(resultsEditor.getSession().getValue() + '.');
           }
-          resultsEditor.clearSelection()
+          resultsEditor.clearSelection();
         }, 1500);
-        var code = editor.getSession().getValue();
-        var json = {
-          code: code
-        };
-        $.post('/run', json, function(data, error, xhr) {
-          resultsEditor.setValue(data.errors + data.output)
-          resultsEditor.clearSelection()
-          sender.prop("disabled", false);
-          sender.html(buttonTitle);
-          editor.focus();
-          clearInterval(intid)
-        });
-      }
-
-      function clear(sender) {
-        resultsEditor.setValue("");
       }
     </script>
   </body>

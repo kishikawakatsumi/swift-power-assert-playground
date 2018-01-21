@@ -18,13 +18,16 @@ Sandbox.prototype.run = function(success) {
 Sandbox.prototype.prepare = function(success) {
   const exec = require('child_process').exec;
   const fs = require('fs');
+  const path = require('path');
   const sandbox = this;
-  const cmd = "mkdir " + this.path + this.folder + " && cp " + this.path + "script.sh " + this.path + this.folder + " && chmod 777 " + this.path + this.folder;
-  exec(cmd, function(error) {
+
+  const work_dir = path.join(this.path, this.folder);
+  const cmd = ['mkdir', work_dir, '&&', 'cp', path.join(this.path, "script.sh"), work_dir, '&&', 'chmod', '777', work_dir];
+  exec(cmd.join(' '), function(error) {
     if (error) {
       console.log(error);
     } else {
-      fs.writeFile(sandbox.path + sandbox.folder + "/" + sandbox.filename, sandbox.code, function(error) {
+      fs.writeFile(path.join(sandbox.path, sandbox.folder, sandbox.filename), sandbox.code, function(error) {
         if (error) {
           console.log(error);
         } else {
@@ -38,33 +41,35 @@ Sandbox.prototype.prepare = function(success) {
 Sandbox.prototype.execute = function(success) {
   const exec = require('child_process').exec;
   const fs = require('fs');
-  let counter = 0;
-  const sandbox = this;
+  const path = require('path');
 
-  const cmd = 'sh ' + this.path + 'run.sh ' + this.timeout_value + 's -v ' + this.path + this.folder + ':/usercode kishikawakatsumi/swift-power-assert' + ' sh /usercode/script.sh';
-  exec(cmd);
+  const sandbox = this;
+  let counter = 0;
+
+  const cmd = ['sh', path.join(this.path, "run.sh"), this.timeout_value + 's', '-v', path.join(this.path, this.folder) + ':/usercode kishikawakatsumi/swift-power-assert', 'sh', '/usercode/script.sh']
+  exec(cmd.join(' '));
 
   const intid = setInterval(function() {
     counter = counter + 1;
-    fs.readFile(sandbox.path + sandbox.folder + '/completed', 'utf8', function(error, data) {
+    const work_dir = path.join(sandbox.path, sandbox.folder)
+    fs.readFile(path.join(work_dir, 'completed'), 'utf8', function(error, data) {
       if (error && counter < sandbox.timeout_value) {
         return;
       } else if (counter < sandbox.timeout_value) {
-        fs.readFile(sandbox.path + sandbox.folder + '/errors', 'utf8', function(error, errorlog) {
+        fs.readFile(path.join(work_dir, 'errors'), 'utf8', function(error, errorlog) {
           if (!errorlog) {
             errorlog = ""
           }
           success(data, errorlog);
         });
       } else {
-        fs.readFile(sandbox.path + sandbox.folder + '/errors', 'utf8', function(error, errorlog) {
+        fs.readFile(path.join(work_dir, 'errors'), 'utf8', function(error, errorlog) {
           if (!errorlog) {
             errorlog = ""
           }
           success(data, errorlog)
         });
       }
-
       exec("rm -r " + sandbox.folder);
       clearInterval(intid);
     });
