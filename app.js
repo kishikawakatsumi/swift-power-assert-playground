@@ -4,6 +4,7 @@ const Express = require("express");
 const ExpressBrute = require('express-brute');
 const BodyParser = require('body-parser');
 const Sandbox = require('./sandbox');
+const compression = require('compression')
 
 const app = Express();
 
@@ -20,6 +21,7 @@ function random(size) {
 app.use(Express.static(__dirname + '/static'));
 app.use(BodyParser.urlencoded({ extended: false }));
 app.use(BodyParser.json());
+app.use(compression())
 
 app.all('*', function(req, res, next) {
   res.header('Access-Control-Allow-Origin', '*');
