@@ -18,10 +18,10 @@ function random(size) {
   return require("crypto").randomBytes(size).toString('hex');
 }
 
+app.use(compression())
 app.use(Express.static(__dirname + '/static'));
 app.use(BodyParser.urlencoded({ extended: false }));
 app.use(BodyParser.json());
-app.use(compression())
 
 app.all('*', function(req, res, next) {
   res.header('Access-Control-Allow-Origin', '*');
