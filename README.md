@@ -1,5 +1,9 @@
 # SwiftPowerAssert Online playground
 
+**This project has moved to a new repository, find it here: [kishikawakatsumi
+/
+swift-power-assert](https://github.com/kishikawakatsumi/swift-power-assert)**
+
 [SwiftPowerAssert](https://github.com/kishikawakatsumi/SwiftPowerAssert/) live demo
 
 https://swift-power-assert.kishikawakatsumi.com
